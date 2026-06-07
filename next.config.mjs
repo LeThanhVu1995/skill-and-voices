@@ -5,6 +5,9 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: "100mb",
     },
+    outputFileTracingIncludes: {
+      "/tro-choi/[slug]/play": ["./storage/games/**"],
+    },
   },
   images: {
     remotePatterns: [

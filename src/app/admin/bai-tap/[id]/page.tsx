@@ -61,7 +61,7 @@ export default async function AssignmentDetailPage({
         </p>
         {a.attachment && (
           <a
-            href={`/api/files/${a.attachment}`}
+            href={a.attachment}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-4 inline-flex items-center gap-2 rounded-xl border border-brand-100 px-4 py-2 text-sm font-medium text-brand-700 hover:bg-brand-50"
@@ -123,7 +123,7 @@ export default async function AssignmentDetailPage({
 
               {s.attachment && (
                 <a
-                  href={`/api/files/${s.attachment}`}
+                  href={s.attachment}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-3 inline-flex items-center gap-2 rounded-xl border border-brand-100 px-4 py-2 text-sm font-medium text-brand-700 hover:bg-brand-50"

@@ -61,7 +61,7 @@ export default async function StudentAssignmentPage({
         </p>
         {assignment.attachment && (
           <a
-            href={`/api/files/${assignment.attachment}`}
+            href={assignment.attachment}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-4 inline-flex items-center gap-2 rounded-xl border border-brand-100 px-4 py-2 text-sm font-medium text-brand-700 hover:bg-brand-50"
@@ -108,7 +108,7 @@ export default async function StudentAssignmentPage({
           </div>
           {submission.attachment && (
             <a
-              href={`/api/files/${submission.attachment}`}
+              href={submission.attachment}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-3 inline-flex items-center gap-2 rounded-xl border border-brand-100 px-4 py-2 text-sm font-medium text-brand-700 hover:bg-brand-50"

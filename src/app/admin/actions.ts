@@ -233,8 +233,7 @@ export async function uploadGame(
     let thumbnail: string | null = null;
     const thumb = formData.get("thumbnail");
     if (thumb instanceof File && thumb.size > 0 && /\.(png|jpe?g|gif|webp)$/i.test(thumb.name)) {
-      const key = await saveUpload(thumb, "media");
-      thumbnail = `/media/${key.replace(/^media\//, "")}`;
+      thumbnail = await saveUpload(thumb, "media");
     }
 
     await prisma.game.create({
@@ -284,11 +283,11 @@ export async function updateGameThumbnail(formData: FormData) {
   if (!/\.(png|jpe?g|gif|webp)$/i.test(thumb.name)) return;
   const game = await prisma.game.findUnique({ where: { id } });
   if (!game) return;
-  if (game.thumbnail?.startsWith("/media/")) {
-    await deleteStoredFile(game.thumbnail.replace(/^\//, ""));
+  if (game.thumbnail) {
+    await deleteStoredFile(game.thumbnail);
   }
-  const key = await saveUpload(thumb, "media");
-  await prisma.game.update({ where: { id }, data: { thumbnail: `/media/${key.replace(/^media\//, "")}` } });
+  const thumbnail = await saveUpload(thumb, "media");
+  await prisma.game.update({ where: { id }, data: { thumbnail } });
   revalidatePath("/admin/tro-choi");
   revalidatePath("/tro-choi");
 }
@@ -318,8 +317,7 @@ async function resolveCover(formData: FormData): Promise<string | null | undefin
   if (file instanceof File && file.size > 0) {
     const lower = file.name.toLowerCase();
     if (/\.(png|jpe?g|gif|webp)$/.test(lower)) {
-      const key = await saveUpload(file, "media");
-      return `/${key}`;
+      return await saveUpload(file, "media");
     }
   }
   if (url) return url;
@@ -387,9 +385,9 @@ export async function updatePost(
     if (!current) return fail("Không tìm thấy bài viết.");
 
     const cover = await resolveCover(formData);
-    // nếu tải ảnh mới và ảnh cũ là file nội bộ -> xóa ảnh cũ
-    if (cover !== undefined && current.coverImage?.startsWith("/media/")) {
-      await deleteStoredFile(current.coverImage.replace(/^\//, ""));
+    // nếu tải ảnh mới và có ảnh cũ -> xóa ảnh cũ
+    if (cover !== undefined && current.coverImage) {
+      await deleteStoredFile(current.coverImage);
     }
 
     const slug =
@@ -434,8 +432,8 @@ export async function deletePost(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const post = await prisma.post.findUnique({ where: { id } });
-  if (post?.coverImage?.startsWith("/media/")) {
-    await deleteStoredFile(post.coverImage.replace(/^\//, ""));
+  if (post?.coverImage) {
+    await deleteStoredFile(post.coverImage);
   }
   await prisma.post.delete({ where: { id } });
   revalidatePath("/admin/bai-viet");

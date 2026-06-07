@@ -206,10 +206,12 @@ DATABASE_URL="<neon-url>" node prisma/seed.mjs
 DATABASE_URL="<neon-url>" node prisma/seed-games.mjs
 ```
 
-> **Lưu ý quan trọng về tệp tải lên (storage):**
-> Ứng dụng lưu ảnh/clip/file tải lên trong thư mục `storage/` trên ổ đĩa.
-> - Trên **VPS / máy chủ Node** (có ổ đĩa bền): hoạt động tốt.
-> - Trên **Vercel/serverless** (hệ thống tệp chỉ đọc, tạm thời): các file tải lên
->   lúc chạy sẽ KHÔNG được lưu lại. Nếu deploy lên Vercel, cần chuyển phần lưu trữ
->   sang dịch vụ object storage (Vercel Blob, AWS S3...). Các trò chơi mẫu trong
->   `storage/games/` đã được commit nên vẫn dùng được.
+> **Lưu trữ tệp tải lên (storage):**
+> Ứng dụng hỗ trợ **2 chế độ tự động**:
+> - Có biến `BLOB_READ_WRITE_TOKEN` (Vercel) → tệp tải lên (ảnh, clip, file bài tập)
+>   được lưu lên **Vercel Blob** và phục vụ qua CDN. Hoạt động tốt trên Vercel/serverless.
+> - Không có token (máy cá nhân / VPS có ổ đĩa) → lưu vào thư mục `storage/` như bình thường.
+>
+> Lấy token tại Vercel Dashboard → Storage → tạo **Blob store** → copy `BLOB_READ_WRITE_TOKEN`
+> vào biến môi trường của project. Các trò chơi mẫu trong `storage/games/` đã được commit
+> nên dùng được ở cả hai chế độ.

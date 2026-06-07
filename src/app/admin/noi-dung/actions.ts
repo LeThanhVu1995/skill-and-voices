@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { saveUpload, deleteStoredFile } from "@/lib/storage";
 import type { GeneralContent, StatItem } from "@/lib/settings";
 
 export type ContentResult = { status: "idle" | "success" | "error"; message: string };
@@ -74,9 +75,7 @@ export async function saveHome(
   const heroUrl = s("heroUrl");
   if (heroFile instanceof File && heroFile.size > 0) {
     if (/\.(png|jpe?g|gif|webp)$/i.test(heroFile.name)) {
-      const { saveUpload } = await import("@/lib/storage");
-      const key = await saveUpload(heroFile, "media");
-      heroImage = `/media/${key.replace(/^media\//, "")}`;
+      heroImage = await saveUpload(heroFile, "media");
     }
   } else if (heroUrl) {
     heroImage = heroUrl;
@@ -140,9 +139,8 @@ export async function uploadMedia(
     return { error: "Chỉ chấp nhận ảnh (png, jpg, gif, webp) hoặc video (mp4, webm, mov)." };
   }
   try {
-    const { saveUpload } = await import("@/lib/storage");
-    const key = await saveUpload(file, "media");
-    return { url: `/media/${key.replace(/^media\//, "")}`, type: isVideo ? "video" : "image" };
+    const url = await saveUpload(file, "media");
+    return { url, type: isVideo ? "video" : "image" };
   } catch (error) {
     console.error("uploadMedia error:", error);
     return { error: "Không thể tải tệp lên." };
@@ -163,9 +161,7 @@ export async function saveAbout(
   if (portraitFile instanceof File && portraitFile.size > 0) {
     const lower = portraitFile.name.toLowerCase();
     if (/\.(png|jpe?g|gif|webp)$/.test(lower)) {
-      const { saveUpload } = await import("@/lib/storage");
-      const key = await saveUpload(portraitFile, "media");
-      portrait = `/media/${key.replace(/^media\//, "")}`;
+      portrait = await saveUpload(portraitFile, "media");
     }
   } else if (portraitUrl) {
     portrait = portraitUrl;

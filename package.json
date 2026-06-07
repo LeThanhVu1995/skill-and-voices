@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@prisma/client": "5.22.0",
+    "@vercel/blob": "^0.27.0",
     "bcryptjs": "^2.4.3",
     "eslint-config-next": "14.2.35",
     "framer-motion": "11.11.17",
