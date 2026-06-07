@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ghép vần vui nhộn</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:linear-gradient(135deg,#fff9f2,#fdf3f3);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px}
+h1{color:#8e1f1f;font-size:1.6rem;margin-bottom:8px}
+.subtitle{color:#666;font-size:.9rem;margin-bottom:24px}
+.game{display:flex;flex-direction:column;gap:20px;width:100%;max-width:400px}
+.question{background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(142,31,31,.08);text-align:center}
+.word{font-size:2rem;font-weight:700;color:#8e1f1f;letter-spacing:4px;margin:12px 0}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.opt{border:2px solid #e2c069;border-radius:12px;padding:12px;font-size:1.1rem;font-weight:600;cursor:pointer;background:#fff;transition:all .2s}
+.opt:hover{background:#f6edcf;transform:scale(1.04)}
+.opt.correct{background:#d4edda;border-color:#28a745;animation:pulse .4s}
+.opt.wrong{background:#fce4e4;border-color:#dc3545;animation:shake .3s}
+.score{text-align:center;font-size:1.2rem;color:#8e1f1f;font-weight:600}
+.next-btn{margin-top:12px;background:linear-gradient(120deg,#e2c069,#c9912f);color:#fff;border:none;padding:12px 24px;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+</style>
+</head>
+<body>
+<h1>🎯 Ghép vần vui nhộn</h1>
+<p class="subtitle">Chọn vần đúng để hoàn thành từ</p>
+<div class="game" id="game"></div>
+<script>
+const data=[
+{word:"M_A",missing:"Ư",options:["Ư","Ơ","Ê","A"],hint:"Quả ngọt mùa hè"},
+{word:"TR_NG",missing:"Ă",options:["Ă","Â","O","Ơ"],hint:"Ánh sáng ban đêm"},
+{word:"H_C",missing:"Ọ",options:["Ọ","Ô","A","Ơ"],hint:"Đi đến trường mỗi ngày"},
+{word:"B_N",missing:"Ạ",options:["Ạ","Â","Ă","A"],hint:"Người cùng chơi"},
+{word:"S_CH",missing:"Á",options:["Á","Ă","Â","A"],hint:"Đọc mỗi ngày"},
+{word:"TH_Y",missing:"Ầ",options:["Ầ","Â","Ấ","Ă"],hint:"Người dạy ở trường"},
+{word:"C_",missing:"Ô",options:["Ô","O","Ơ","Â"],hint:"Người dạy giỏi lắm"},
+{word:"V_N",missing:"Ườ",options:["Ườ","ƯƠ","ÂN","ƯỜ"],hint:"Nơi có nhiều hoa"},
+];
+let idx=0,score=0,answered=false;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function render(){
+const g=document.getElementById("game");
+if(idx>=data.length){g.innerHTML=`<div class="question"><p class="word">🎉</p><p style="font-size:1.3rem;color:#8e1f1f;font-weight:600">Hoàn thành!</p><p class="score">Điểm: ${score}/${data.length}</p><button class="next-btn" onclick="restart()">Chơi lại</button></div>`;return;}
+const q=data[idx];answered=false;
+const opts=shuffle([...q.options]);
+g.innerHTML=`<div class="question"><p style="color:#666;font-size:.85rem">Câu ${idx+1}/${data.length} · ${q.hint}</p><p class="word">${q.word}</p><div class="options">${opts.map(o=>`<div class="opt" onclick="check(this,'${o}','${q.missing}')">${o}</div>`).join("")}</div></div><p class="score">Điểm: ${score}</p>`;
+}
+function check(el,chosen,correct){
+if(answered)return;answered=true;
+if(chosen===correct){el.classList.add("correct");score++;}
+else{el.classList.add("wrong");document.querySelectorAll(".opt").forEach(o=>{if(o.textContent===correct)o.classList.add("correct");});}
+setTimeout(()=>{idx++;render();},900);
+}
+function restart(){idx=0;score=0;render();}
+render();
+</script>
+</body>
+</html>

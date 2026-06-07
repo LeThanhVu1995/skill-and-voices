@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Robot phân loại</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:linear-gradient(135deg,#f0fdf4,#fff9f2);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;color:#1e293b}
+h1{color:#16a34a;font-size:1.5rem;margin-bottom:4px;text-align:center}
+.sub{color:#64748b;font-size:.9rem;margin-bottom:16px;text-align:center;max-width:440px}
+.card{background:#fff;border-radius:20px;padding:22px;box-shadow:0 10px 30px rgba(22,163,74,.12);width:100%;max-width:460px;text-align:center}
+.item{font-size:4rem;margin:8px 0;min-height:70px}
+.name{font-weight:700;color:#15803d;font-size:1.1rem;margin-bottom:18px}
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.bin{border:3px dashed #86efac;border-radius:18px;padding:18px 10px;cursor:pointer;background:#f0fdf4;font-weight:700;transition:.15s}
+.bin:hover{transform:scale(1.04);border-color:#22c55e}
+.bin .bi{font-size:2rem;display:block;margin-bottom:4px}
+.fb{margin-top:14px;font-weight:600;min-height:24px}
+.score{margin-top:10px;color:#16a34a;font-weight:600}
+.btn{margin-top:14px;background:linear-gradient(120deg,#22c55e,#15803d);color:#fff;border:none;padding:12px 28px;border-radius:14px;font-weight:700;cursor:pointer}
+</style></head><body>
+<h1>🗂️ Robot phân loại</h1>
+<p class="sub">AI học cách phân nhóm đồ vật. Giúp robot bỏ mỗi thứ vào đúng nhóm nhé!</p>
+<div class="card" id="card"></div>
+<script>
+const DATA=[
+{e:"🐶",g:"sống"},{e:"🍎",g:"vat"},{e:"🐱",g:"sống"},{e:"🚲",g:"vat"},
+{e:"🐦",g:"sống"},{e:"📱",g:"vat"},{e:"🐠",g:"sống"},{e:"⚽",g:"vat"},
+{e:"🦋",g:"sống"},{e:"🪑",g:"vat"},{e:"🌳",g:"sống"},{e:"✏️",g:"vat"}];
+let i=0,s=0,done=false;
+function shuffle(a){for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a}
+shuffle(DATA);
+function render(){
+const c=document.getElementById('card');
+if(i>=DATA.length){c.innerHTML=`<div class="item">🎉</div><div class="name">Hoàn thành!</div><p class="score">Đúng ${s}/${DATA.length}</p><button class="btn" onclick="restart()">Chơi lại</button>`;return}
+done=false;const d=DATA[i];
+c.innerHTML=`<p style="color:#94a3b8;font-size:.85rem">Vật ${i+1}/${DATA.length}</p><div class="item">${d.e}</div><div class="name">Đây thuộc nhóm nào?</div>
+<div class="bins"><div class="bin" onclick="drop('sống',this)"><span class="bi">🌱</span>Sinh vật sống</div><div class="bin" onclick="drop('vat',this)"><span class="bi">📦</span>Đồ vật</div></div>
+<p class="fb" id="fb"></p><p class="score">Điểm: ${s}</p>`;
+}
+function drop(g,el){
+if(done)return;done=true;
+const ok=g===DATA[i].g;
+el.style.background=ok?'#dcfce7':'#fee2e2';el.style.borderColor=ok?'#22c55e':'#ef4444';
+if(ok)s++;
+document.getElementById('fb').innerHTML=ok?'<span style="color:#16a34a">🎯 Chính xác!</span>':'<span style="color:#dc2626">💡 Chưa đúng rồi!</span>';
+setTimeout(()=>{i++;render()},800);
+}
+function restart(){i=0;s=0;shuffle(DATA);render()}
+render();
+</script></body></html>

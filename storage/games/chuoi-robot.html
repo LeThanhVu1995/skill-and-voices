@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Robot ghi nhớ chuỗi</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:linear-gradient(135deg,#fdf4ff,#fff9f2);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;color:#1e293b}
+h1{color:#a21caf;font-size:1.5rem;margin-bottom:4px;text-align:center}
+.sub{color:#64748b;font-size:.9rem;margin-bottom:12px;text-align:center;max-width:460px}
+.status{font-weight:700;color:#86198f;margin-bottom:12px;min-height:24px;text-align:center}
+.pads{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:340px}
+.pad{aspect-ratio:1;border-radius:20px;cursor:pointer;opacity:.55;transition:.15s;display:flex;align-items:center;justify-content:center;font-size:2.4rem;border:none}
+.pad.on{opacity:1;transform:scale(1.05);box-shadow:0 0 24px rgba(0,0,0,.2)}
+.p0{background:#f87171}.p1{background:#60a5fa}.p2{background:#facc15}.p3{background:#4ade80}
+.btn{margin-top:18px;background:linear-gradient(120deg,#d946ef,#a21caf);color:#fff;border:none;padding:12px 28px;border-radius:14px;font-weight:700;cursor:pointer}
+</style></head><body>
+<h1>🎵 Robot ghi nhớ chuỗi</h1>
+<p class="sub">AI học bằng cách ghi nhớ. Xem robot bật sáng theo thứ tự rồi bấm lại đúng y như vậy nhé!</p>
+<div class="status" id="status">Bấm Bắt đầu để chơi</div>
+<div class="pads" id="pads">
+<button class="pad p0" data-i="0">🔴</button>
+<button class="pad p1" data-i="1">🔵</button>
+<button class="pad p2" data-i="2">🟡</button>
+<button class="pad p3" data-i="3">🟢</button>
+</div>
+<button class="btn" id="start" onclick="start()">▶ Bắt đầu</button>
+<script>
+const pads=[...document.querySelectorAll('.pad')];
+let seq=[],pos=0,playing=false,accept=false;
+function light(i){return new Promise(r=>{pads[i].classList.add('on');setTimeout(()=>{pads[i].classList.remove('on');setTimeout(r,160)},400)})}
+function start(){seq=[];playing=true;document.getElementById('start').style.display='none';nextRound()}
+async function nextRound(){
+accept=false;pos=0;
+seq.push(Math.floor(Math.random()*4));
+document.getElementById('status').textContent=`Vòng ${seq.length} — Nhìn kỹ nhé...`;
+await new Promise(r=>setTimeout(r,500));
+for(const i of seq){await light(i)}
+accept=true;
+document.getElementById('status').textContent=`Đến lượt em! Bấm lại ${seq.length} nút.`;
+}
+pads.forEach(p=>p.onclick=async()=>{
+if(!accept)return;
+const i=+p.dataset.i;
+p.classList.add('on');setTimeout(()=>p.classList.remove('on'),200);
+if(i===seq[pos]){pos++;if(pos===seq.length){accept=false;document.getElementById('status').textContent='🎉 Đúng rồi! Vòng tiếp theo...';setTimeout(nextRound,900)}}
+else{accept=false;playing=false;document.getElementById('status').innerHTML=`💥 Sai rồi! Em nhớ được <b>${seq.length-1}</b> vòng. Giỏi lắm!`;document.getElementById('start').style.display='';document.getElementById('start').textContent='Chơi lại'}
+});
+</script></body></html>

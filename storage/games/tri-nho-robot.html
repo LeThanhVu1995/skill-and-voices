@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trí nhớ Robot</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:linear-gradient(135deg,#ecfeff,#fff9f2);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;color:#1e293b}
+h1{color:#0891b2;font-size:1.5rem;margin-bottom:4px;text-align:center}
+.sub{color:#64748b;font-size:.9rem;margin-bottom:14px;text-align:center;max-width:440px}
+.bar{color:#0891b2;font-weight:700;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;max-width:400px}
+.tile{aspect-ratio:1;border-radius:16px;background:linear-gradient(135deg,#0891b2,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:1.9rem;cursor:pointer;color:transparent;transition:.2s;user-select:none}
+.tile.show{background:#fff;border:2px solid #67e8f9;color:#000}
+.tile.done{background:#dcfce7;border:2px solid #22c55e;color:#000;cursor:default}
+.win{margin-top:18px;text-align:center}
+.btn{margin-top:12px;background:linear-gradient(120deg,#06b6d4,#0e7490);color:#fff;border:none;padding:12px 28px;border-radius:14px;font-weight:700;cursor:pointer}
+</style></head><body>
+<h1>🧠 Trí nhớ Robot</h1>
+<p class="sub">AI ghi nhớ rất nhiều dữ liệu. Em hãy lật và ghép các cặp giống nhau nhé!</p>
+<div class="bar" id="bar"></div>
+<div class="grid" id="grid"></div>
+<div class="win" id="win"></div>
+<script>
+const ICONS=["🤖","💡","🔋","📡","💻","🎮","🛰️","🔌"];
+let deck,flip,matched,moves,lock;
+function init(){
+deck=[...ICONS,...ICONS].map((e,i)=>({id:i,e,open:false,done:false}));
+for(let k=deck.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[deck[k],deck[j]]=[deck[j],deck[k]]}
+flip=[];matched=0;moves=0;lock=false;document.getElementById('win').innerHTML='';render();
+}
+function render(){
+document.getElementById('bar').textContent=`Lượt lật: ${moves} · Cặp đúng: ${matched}/${ICONS.length}`;
+const g=document.getElementById('grid');
+g.innerHTML=deck.map((t,idx)=>`<div class="tile ${t.done?'done':t.open?'show':''}" onclick="open(${idx})">${t.open||t.done?t.e:''}</div>`).join("");
+}
+function open(idx){
+if(lock)return;const t=deck[idx];if(t.open||t.done)return;
+t.open=true;flip.push(idx);render();
+if(flip.length===2){
+moves++;lock=true;
+const[a,b]=flip;
+if(deck[a].e===deck[b].e){deck[a].done=deck[b].done=true;matched++;flip=[];lock=false;render();
+if(matched===ICONS.length){document.getElementById('win').innerHTML=`<p style="font-size:1.3rem;color:#0891b2;font-weight:700">🎉 Hoàn thành sau ${moves} lượt!</p><button class="btn" onclick="init()">Chơi lại</button>`;}
+}else{setTimeout(()=>{deck[a].open=deck[b].open=false;flip=[];lock=false;render()},800)}
+}
+}
+init();
+</script></body></html>

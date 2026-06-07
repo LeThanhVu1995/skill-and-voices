@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI nói đúng hay sai</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:linear-gradient(135deg,#eef2ff,#fff9f2);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;color:#1e293b}
+h1{color:#4338ca;font-size:1.5rem;margin-bottom:4px;text-align:center}
+.sub{color:#64748b;font-size:.9rem;margin-bottom:16px;text-align:center;max-width:460px}
+.card{background:#fff;border-radius:20px;padding:24px;box-shadow:0 10px 30px rgba(67,56,202,.12);width:100%;max-width:440px;text-align:center}
+.robot{font-size:2.6rem}
+.say{background:#eef2ff;border-radius:16px;padding:16px;color:#3730a3;font-weight:700;font-size:1.05rem;margin:10px 0 18px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{border:2px solid #c7d2fe;border-radius:16px;padding:14px;font-weight:700;cursor:pointer;background:#f8faff;transition:.15s}
+.opt:hover{transform:translateY(-3px);border-color:#6366f1}
+.opt.ok{background:#dcfce7;border-color:#22c55e}.opt.no{background:#fee2e2;border-color:#ef4444}
+.fb{margin-top:12px;font-weight:600;min-height:24px;font-size:.92rem}
+.score{margin-top:10px;color:#4338ca;font-weight:600}
+.btn{margin-top:14px;background:linear-gradient(120deg,#6366f1,#4338ca);color:#fff;border:none;padding:12px 28px;border-radius:14px;font-weight:700;cursor:pointer}
+</style></head><body>
+<h1>🤔 AI nói đúng hay sai?</h1>
+<p class="sub">Robot AI đôi khi cũng nói sai! Em hãy phán đoán câu nào đúng, câu nào sai nhé.</p>
+<div class="card" id="card"></div>
+<script>
+const Q=[
+{s:"Mặt trời mọc ở hướng Đông.",a:true,w:"Đúng! Mặt trời mọc ở hướng Đông."},
+{s:"Cá có thể sống trên cạn mãi mãi.",a:false,w:"Sai rồi! Cá cần nước để thở."},
+{s:"Một tuần có 7 ngày.",a:true,w:"Chính xác, 7 ngày một tuần."},
+{s:"Robot AI có cảm xúc thật như con người.",a:false,w:"Sai! AI chỉ bắt chước, không có cảm xúc thật."},
+{s:"Cây xanh giúp tạo ra khí cho ta thở.",a:true,w:"Đúng! Cây nhả khí ô-xy."},
+{s:"Số 10 lớn hơn số 7.",a:true,w:"Đúng rồi!"},
+{s:"Chúng ta nên tin mọi điều trên mạng.",a:false,w:"Sai! Cần hỏi người lớn và kiểm tra lại."},
+{s:"Đọc sách giúp em giỏi hơn.",a:true,w:"Đúng! Đọc sách rất bổ ích."},
+{s:"AI có thể giúp con người làm việc nhanh hơn.",a:true,w:"Đúng! AI là công cụ hỗ trợ."},
+{s:"Ăn nhiều kẹo tốt cho răng.",a:false,w:"Sai! Ăn nhiều kẹo dễ sâu răng."},
+];
+let i=0,s=0,done=false;
+function shuffle(a){for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a}
+shuffle(Q);
+function render(){
+const c=document.getElementById('card');
+if(i>=Q.length){c.innerHTML=`<div class="robot">🎉</div><div class="say">Em đã hoàn thành!</div><p class="score">Đúng ${s}/${Q.length}</p><button class="btn" onclick="restart()">Chơi lại</button>`;return}
+done=false;
+c.innerHTML=`<div class="robot">🤖💬</div><p style="color:#94a3b8;font-size:.85rem">Câu ${i+1}/${Q.length}</p><div class="say">"${Q[i].s}"</div>
+<div class="opts"><div class="opt" onclick="pick(true,this)">✅ Đúng</div><div class="opt" onclick="pick(false,this)">❌ Sai</div></div>
+<p class="fb" id="fb"></p><p class="score">Điểm: ${s}</p>`;
+}
+function pick(ans,el){
+if(done)return;done=true;const ok=ans===Q[i].a;el.classList.add(ok?'ok':'no');if(ok)s++;
+document.getElementById('fb').innerHTML=(ok?'<span style="color:#16a34a">🎯 ':'<span style="color:#dc2626">💡 ')+Q[i].w+'</span>';
+setTimeout(()=>{i++;render()},1500);
+}
+function restart(){i=0;s=0;shuffle(Q);render()}
+render();
+</script></body></html>

@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Đăng ký tư vấn / học thử từ phụ huynh
+model Consultation {
+  id          String   @id @default(cuid())
+  parentName  String // Họ tên phụ huynh
+  studentName String? // Tên học sinh
+  grade       String? // Lớp
+  phone       String // Số điện thoại
+  email       String?
+  need        String? // Nhu cầu cần hỗ trợ
+  source      String   @default("website") // nguồn đăng ký
+  status      LeadStatus @default(NEW)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+/// Yêu cầu hợp tác từ trường học / đơn vị giáo dục
+model Partnership {
+  id            String   @id @default(cuid())
+  orgName       String // Tên trường / đơn vị
+  contactName   String // Người liên hệ
+  phone         String
+  email         String?
+  partnerType   String? // Loại hình hợp tác
+  message       String?
+  status        LeadStatus @default(NEW)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+/// Bài viết Góc phụ huynh (blog)
+model Post {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  excerpt     String
+  content     String // markdown / html
+  coverImage  String?
+  category    String // Đồng hành cùng con, Tâm lý, Kỹ năng giao tiếp, Phương pháp học tập...
+  readTime    Int       @default(5) // phút đọc
+  published   Boolean   @default(true)
+  publishedAt DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([category])
+  @@index([publishedAt])
+}
+
+/// Cảm nhận của phụ huynh / học sinh
+model Testimonial {
+  id        String   @id @default(cuid())
+  authorName String // Tên phụ huynh
+  role      String? // Phụ huynh em ... / Lớp ...
+  avatar    String?
+  content   String
+  rating    Int      @default(5)
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([featured])
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  CONVERTED
+  CLOSED
+}
+
+/// Tài khoản người dùng: Giáo viên (ADMIN) và Học sinh (STUDENT)
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role     @default(STUDENT)
+  grade        String? // Lớp (dành cho học sinh)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assignments Assignment[] @relation("AuthoredAssignments")
+  submissions Submission[]
+
+  @@index([role])
+}
+
+/// Bài tập do giáo viên đăng
+model Assignment {
+  id          String   @id @default(cuid())
+  title       String
+  description String // hướng dẫn / đề bài
+  grade       String? // lớp áp dụng (null = tất cả)
+  attachment  String? // đường dẫn file đính kèm
+  dueDate     DateTime?
+  published   Boolean  @default(true)
+  authorId    String
+  author      User     @relation("AuthoredAssignments", fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  submissions Submission[]
+
+  @@index([published])
+  @@index([createdAt])
+}
+
+/// Bài làm học sinh nộp + phần phê bình của giáo viên
+model Submission {
+  id           String           @id @default(cuid())
+  assignmentId String
+  assignment   Assignment       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  studentId    String
+  student      User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  content      String // bài làm dạng văn bản
+  attachment   String? // file học sinh nộp
+  status       SubmissionStatus @default(SUBMITTED)
+  grade        String? // điểm / xếp loại
+  feedback     String? // lời phê bình của giáo viên
+  gradedAt     DateTime?
+  submittedAt  DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@unique([assignmentId, studentId])
+  @@index([studentId])
+}
+
+/// Trò chơi học tập tải lên bằng file HTML
+model Game {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String?
+  category    String   @default("Trò chơi")
+  filePath    String // đường dẫn file html đã lưu
+  thumbnail   String?
+  published   Boolean  @default(true)
+  plays       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([published])
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+}
+
+enum SubmissionStatus {
+  SUBMITTED
+  GRADED
+}
+
+/// Nội dung trang web do admin chỉnh sửa (lưu theo nhóm dạng JSON)
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+/// Lịch khai giảng / lớp học
+model ClassSchedule {
+  id        String    @id @default(cuid())
+  name      String // Tên lớp / khóa
+  ageGroup  String? // Độ tuổi / khối
+  mode      String? // Trực tiếp / Online / Kèm 1-1
+  schedule  String? // Lịch học, vd: "Thứ 3-5, 18:00-19:30"
+  startDate DateTime? // Ngày khai giảng
+  capacity  Int       @default(8) // sĩ số tối đa
+  note      String?
+  published Boolean   @default(true)
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([published])
+}

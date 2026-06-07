@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI quanh em</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:linear-gradient(135deg,#eff7ff,#fff9f2);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;color:#1e293b}
+h1{color:#2572eb;font-size:1.5rem;margin-bottom:4px;text-align:center}
+.sub{color:#64748b;font-size:.9rem;margin-bottom:18px;text-align:center}
+.card{background:#fff;border-radius:20px;padding:22px;box-shadow:0 10px 30px rgba(37,114,235,.12);width:100%;max-width:440px;text-align:center}
+.q{font-size:1.15rem;font-weight:700;color:#1e3a8a;margin:6px 0 18px}
+.emoji{font-size:3.4rem;margin:6px 0}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{border:2px solid #bfe0fe;border-radius:16px;padding:16px;font-size:1rem;font-weight:600;cursor:pointer;background:#f8fbff;transition:.15s}
+.opt:hover{transform:translateY(-3px);border-color:#3b90f6}
+.opt.ok{background:#dcfce7;border-color:#22c55e}
+.opt.no{background:#fee2e2;border-color:#ef4444}
+.bar{height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-bottom:16px}
+.fill{height:100%;background:linear-gradient(90deg,#3b90f6,#2572eb);transition:.3s}
+.score{margin-top:16px;font-weight:600;color:#2572eb}
+.btn{margin-top:14px;background:linear-gradient(120deg,#3b90f6,#1d5bd8);color:#fff;border:none;padding:12px 28px;border-radius:14px;font-size:1rem;font-weight:700;cursor:pointer}
+.fb{margin-top:12px;font-weight:600;min-height:24px}
+</style></head><body>
+<h1>🤖 AI quanh em</h1>
+<p class="sub">Thiết bị nào có sử dụng Trí tuệ nhân tạo (AI)?</p>
+<div class="card" id="card"></div>
+<script>
+const Q=[
+{e:"🔊",t:"Loa thông minh trả lời câu hỏi",ai:true,why:"Loa thông minh hiểu giọng nói nhờ AI!"},
+{e:"✏️",t:"Cây bút chì",ai:false,why:"Bút chì chỉ để viết, không có AI."},
+{e:"🤖",t:"Robot hút bụi tự đi",ai:true,why:"Robot tự tìm đường nhờ AI!"},
+{e:"🪑",t:"Cái ghế gỗ",ai:false,why:"Ghế gỗ không thông minh đâu nhé."},
+{e:"📱",t:"Điện thoại mở khóa bằng khuôn mặt",ai:true,why:"Nhận diện khuôn mặt là AI đó!"},
+{e:"🥄",t:"Cái thìa ăn cơm",ai:false,why:"Thìa chỉ là đồ dùng thường."},
+{e:"🚗",t:"Xe tự lái",ai:true,why:"Xe tự lái dùng AI để quan sát đường!"},
+{e:"📚",t:"Quyển sách giấy",ai:false,why:"Sách giấy không có AI."},
+{e:"🌐",t:"Trợ lý dịch tiếng tự động",ai:true,why:"Dịch tự động là nhờ AI!"},
+{e:"⚽",t:"Quả bóng đá",ai:false,why:"Bóng đá để chơi, không có AI."},
+];
+let i=0,s=0,done=false;
+function shuffle(a){for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a}
+shuffle(Q);
+function render(){
+const c=document.getElementById('card');
+if(i>=Q.length){c.innerHTML=`<div class="emoji">🎉</div><div class="q">Hoàn thành!</div><p class="score">Em trả lời đúng ${s}/${Q.length} câu</p><button class="btn" onclick="restart()">Chơi lại</button>`;return}
+const q=Q[i];done=false;
+c.innerHTML=`<div class="bar"><div class="fill" style="width:${i/Q.length*100}%"></div></div>
+<div class="emoji">${q.e}</div><div class="q">${q.t}</div>
+<div class="opts"><div class="opt" onclick="pick(true,this)">✅ Có AI</div><div class="opt" onclick="pick(false,this)">❌ Không có</div></div>
+<p class="fb" id="fb"></p><p class="score">Điểm: ${s}</p>`;
+}
+function pick(ans,el){
+if(done)return;done=true;
+const q=Q[i];const ok=ans===q.ai;
+el.classList.add(ok?'ok':'no');
+if(ok)s++;
+document.getElementById('fb').innerHTML=(ok?'<span style="color:#16a34a">🎯 Đúng rồi! ':'<span style="color:#dc2626">💡 ')+q.why+'</span>';
+setTimeout(()=>{i++;render()},1400);
+}
+function restart(){i=0;s=0;shuffle(Q);render()}
+render();
+</script></body></html>

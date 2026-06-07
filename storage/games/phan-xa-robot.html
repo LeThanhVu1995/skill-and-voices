@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Phản xạ Robot</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:linear-gradient(135deg,#fffbeb,#fff9f2);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;color:#1e293b}
+h1{color:#d97706;font-size:1.5rem;margin-bottom:4px;text-align:center}
+.sub{color:#64748b;font-size:.9rem;margin-bottom:14px;text-align:center;max-width:460px}
+.hud{display:flex;gap:18px;font-weight:700;color:#b45309;margin-bottom:10px}
+.arena{position:relative;width:100%;max-width:440px;height:380px;background:#fff;border-radius:20px;box-shadow:0 10px 30px rgba(217,119,6,.12);overflow:hidden;cursor:pointer}
+.t{position:absolute;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;user-select:none}
+.good{background:#fef3c7}
+.bad{background:#fee2e2}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+.btn{margin-top:12px;background:linear-gradient(120deg,#f59e0b,#b45309);color:#fff;border:none;padding:12px 28px;border-radius:14px;font-weight:700;cursor:pointer}
+</style></head><body>
+<h1>⚡ Phản xạ Robot</h1>
+<p class="sub">Chạm thật nhanh vào 🤖 robot, đừng chạm 💣 bom nhé! Trong 30 giây ai điểm cao hơn nào.</p>
+<div class="hud"><span id="score">Điểm: 0</span><span id="time">⏱ 30s</span></div>
+<div class="arena" id="arena"><div class="center" id="center"><p style="font-size:1.1rem;font-weight:700;color:#b45309">Sẵn sàng chưa?</p><button class="btn" onclick="start()">▶ Bắt đầu</button></div></div>
+<script>
+let score,time,playing,spawnT,tickT;
+const arena=document.getElementById('arena');
+function start(){
+score=0;time=30;playing=true;
+document.getElementById('center').style.display='none';
+document.getElementById('score').textContent='Điểm: 0';
+document.getElementById('time').textContent='⏱ 30s';
+spawn();
+tickT=setInterval(()=>{time--;document.getElementById('time').textContent='⏱ '+time+'s';if(time<=0)end()},1000);
+}
+function spawn(){
+if(!playing)return;
+[...arena.querySelectorAll('.t')].forEach(e=>e.remove());
+const bad=Math.random()<0.3;
+const el=document.createElement('div');
+el.className='t '+(bad?'bad':'good');el.textContent=bad?'💣':'🤖';
+const max=380-64;
+el.style.left=Math.random()*(440-64)+'px';el.style.top=Math.random()*max+'px';
+el.onclick=(e)=>{e.stopPropagation();if(!playing)return;if(bad){score=Math.max(0,score-2)}else{score++}document.getElementById('score').textContent='Điểm: '+score;el.remove();spawn()};
+arena.appendChild(el);
+spawnT=setTimeout(spawn,Math.max(650,1100-(30-time)*15));
+}
+function end(){
+playing=false;clearInterval(tickT);clearTimeout(spawnT);
+[...arena.querySelectorAll('.t')].forEach(e=>e.remove());
+const c=document.getElementById('center');c.style.display='flex';
+c.innerHTML=`<p style="font-size:2rem">🏆</p><p style="font-size:1.2rem;font-weight:700;color:#b45309">Điểm của em: ${score}</p><button class="btn" onclick="start()">Chơi lại</button>`;
+}
+</script></body></html>

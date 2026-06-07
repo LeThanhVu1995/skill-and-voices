@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Đoán từ theo gợi ý</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:linear-gradient(135deg,#eff7ff,#fff9f2);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px}
+h1{color:#1e4baf;font-size:1.6rem;margin-bottom:8px}
+.sub{color:#666;font-size:.9rem;margin-bottom:24px}
+.card{background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 24px rgba(30,75,175,.08);width:100%;max-width:420px;text-align:center}
+.hints{display:flex;flex-direction:column;gap:8px;margin:16px 0;text-align:left}
+.hint{background:#eff7ff;border-radius:10px;padding:10px 14px;font-size:.95rem;color:#1e4baf;opacity:0;transition:opacity .3s}
+.hint.show{opacity:1}
+.input-row{display:flex;gap:8px;margin-top:16px}
+.input-row input{flex:1;border:2px solid #bfe0fe;border-radius:10px;padding:12px;font-size:1.1rem;outline:none;text-align:center;font-weight:600}
+.input-row input:focus{border-color:#3b90f6}
+.input-row button{background:#1e4baf;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-weight:600;cursor:pointer;font-size:1rem}
+.msg{margin-top:12px;font-weight:600;font-size:1rem;min-height:28px}
+.msg.ok{color:#28a745}.msg.no{color:#dc3545}
+.actions{margin-top:16px;display:flex;gap:8px;justify-content:center}
+.actions button{background:#eff7ff;border:1.5px solid #bfe0fe;color:#1e4baf;border-radius:10px;padding:10px 18px;font-weight:600;cursor:pointer}
+.score{margin-top:16px;font-size:1.1rem;color:#1e4baf;font-weight:600}
+</style>
+</head>
+<body>
+<h1>🧩 Đoán từ theo gợi ý</h1>
+<p class="sub">Đọc gợi ý và nhập từ đúng</p>
+<div class="card" id="card"></div>
+<script>
+const words=[
+{answer:"mặt trời",hints:["Tỏa sáng mỗi sáng","Có màu vàng rực","Cho ta ánh sáng và hơi ấm"]},
+{answer:"con mèo",hints:["Có 4 chân","Kêu meo meo","Thích bắt chuột"]},
+{answer:"cầu vồng",hints:["Xuất hiện sau mưa","Có 7 màu sắc","Hình vòng cung trên trời"]},
+{answer:"sách",hints:["Có nhiều trang giấy","Chứa kiến thức","Đọc mỗi ngày để giỏi hơn"]},
+{answer:"bút chì",hints:["Dùng để viết","Có thể tẩy được","Cần gọt khi cùn"]},
+{answer:"trái đất",hints:["Nơi chúng ta sống","Hình tròn","Có nước và đất liền"]},
+];
+let idx=0,score=0,hintIdx=0;
+function render(){
+const c=document.getElementById("card");
+if(idx>=words.length){c.innerHTML=`<p style="font-size:2rem">🎉</p><p class="score">Hoàn thành! Điểm: ${score}/${words.length}</p><div class="actions"><button onclick="restart()">Chơi lại</button></div>`;return;}
+const w=words[idx];hintIdx=1;
+c.innerHTML=`<p style="color:#999;font-size:.85rem">Câu ${idx+1}/${words.length}</p><div class="hints">${w.hints.map((h,i)=>`<div class="hint${i<1?' show':''}" id="h${i}">💡 ${h}</div>`).join("")}</div><div class="input-row"><input id="ans" placeholder="Nhập từ..." autocomplete="off"><button onclick="check()">Trả lời</button></div><p class="msg" id="msg"></p><div class="actions"><button onclick="showHint()">Thêm gợi ý</button><button onclick="skip()">Bỏ qua →</button></div><p class="score">Điểm: ${score}</p>`;
+document.getElementById("ans").addEventListener("keydown",e=>{if(e.key==="Enter")check();});
+document.getElementById("ans").focus();
+}
+function showHint(){
+if(hintIdx<words[idx].hints.length){document.getElementById("h"+hintIdx).classList.add("show");hintIdx++;}
+}
+function check(){
+const ans=document.getElementById("ans").value.trim().toLowerCase();
+const msg=document.getElementById("msg");
+if(!ans){msg.className="msg no";msg.textContent="Hãy nhập câu trả lời!";return;}
+if(ans===words[idx].answer){msg.className="msg ok";msg.textContent="🎉 Đúng rồi! Giỏi lắm!";score++;setTimeout(()=>{idx++;render();},1000);}
+else{msg.className="msg no";msg.textContent="❌ Chưa đúng, thử lại nhé!";}
+}
+function skip(){idx++;render();}
+function restart(){idx=0;score=0;render();}
+render();
+</script>
+</body>
+</html>

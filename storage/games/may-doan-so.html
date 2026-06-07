@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Máy đoán số</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:linear-gradient(135deg,#faf5ff,#fff9f2);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;color:#1e293b}
+h1{color:#9333ea;font-size:1.5rem;margin-bottom:4px;text-align:center}
+.sub{color:#64748b;font-size:.9rem;margin-bottom:16px;text-align:center;max-width:440px}
+.card{background:#fff;border-radius:20px;padding:24px;box-shadow:0 10px 30px rgba(147,51,234,.12);width:100%;max-width:420px;text-align:center}
+.robot{font-size:3.4rem}
+.guess{font-size:3.2rem;font-weight:800;color:#9333ea;margin:10px 0}
+.bubble{background:#faf5ff;border-radius:16px;padding:12px;color:#7e22ce;font-weight:600;margin-bottom:16px}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.b{border:none;border-radius:14px;padding:12px 18px;font-weight:700;font-size:.95rem;cursor:pointer;color:#fff}
+.b.low{background:#3b82f6}.b.high{background:#f97316}.b.eq{background:#22c55e}
+.b:active{transform:scale(.95)}
+.btn{margin-top:14px;background:linear-gradient(120deg,#a855f7,#7e22ce);color:#fff;border:none;padding:12px 28px;border-radius:14px;font-weight:700;cursor:pointer}
+.note{margin-top:14px;font-size:.85rem;color:#94a3b8}
+</style></head><body>
+<h1>🔮 Máy đoán số (AI)</h1>
+<p class="sub">Em nghĩ 1 số từ 1 đến 100, đừng nói ra. Robot sẽ đoán — em chỉ trả lời cao hơn / thấp hơn nhé!</p>
+<div class="card" id="card"></div>
+<script>
+let lo,hi,guess,tries,state;
+function start(){lo=1;hi=100;tries=0;state='play';next()}
+function next(){guess=Math.floor((lo+hi)/2);tries++;render()}
+function render(){
+const c=document.getElementById('card');
+if(state==='win'){c.innerHTML=`<div class="robot">🤖🎉</div><div class="guess">${guess}</div><div class="bubble">Đúng rồi! Robot đoán ra sau ${tries} lần. AI tìm số rất nhanh nhờ chia đôi mỗi lần!</div><button class="btn" onclick="start()">Chơi lại</button>`;return}
+c.innerHTML=`<div class="robot">🤖</div><div class="bubble">Có phải số của em là...</div><div class="guess">${guess}</div>
+<div class="row"><button class="b low" onclick="ans('lo')">📉 Số tôi nhỏ hơn</button><button class="b eq" onclick="ans('eq')">🎯 Đúng số này!</button><button class="b high" onclick="ans('hi')">📈 Số tôi lớn hơn</button></div>
+<p class="note">Lần đoán: ${tries} · Còn lại từ ${lo} đến ${hi}</p>`;
+}
+function ans(a){
+if(a==='eq'){state='win';render();return}
+if(a==='hi'){lo=guess+1}else{hi=guess-1}
+if(lo>hi){c=document.getElementById('card');c.innerHTML=`<div class="robot">🤖❓</div><div class="bubble">Ơ, hình như em đổi số rồi! Mình chơi lại nhé.</div><button class="btn" onclick="start()">Chơi lại</button>`;return}
+next();
+}
+start();
+</script></body></html>

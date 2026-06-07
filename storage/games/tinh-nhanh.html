@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tính nhẩm nhanh</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:linear-gradient(135deg,#f6edcf,#fff9f2);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px}
+h1{color:#7a1e1e;font-size:1.6rem;margin-bottom:8px}
+.sub{color:#666;font-size:.9rem;margin-bottom:24px}
+.card{background:#fff;border-radius:20px;padding:28px;box-shadow:0 4px 24px rgba(142,31,31,.08);width:100%;max-width:380px;text-align:center}
+.problem{font-size:2.5rem;font-weight:700;color:#8e1f1f;margin:16px 0}
+.timer{font-size:.9rem;color:#c9912f;font-weight:600;margin-bottom:12px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{border:2px solid #ecd99c;border-radius:12px;padding:14px;font-size:1.3rem;font-weight:700;cursor:pointer;background:#fff;transition:all .2s;color:#8e1f1f}
+.opt:hover{background:#f6edcf;transform:scale(1.04)}
+.opt.correct{background:#d4edda;border-color:#28a745}
+.opt.wrong{background:#fce4e4;border-color:#dc3545}
+.score{margin-top:16px;font-size:1.1rem;color:#8e1f1f;font-weight:600}
+.btn{margin-top:16px;background:linear-gradient(120deg,#e2c069,#c9912f);color:#fff;border:none;padding:12px 28px;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer}
+.streak{font-size:.85rem;color:#c9912f;margin-top:6px}
+</style>
+</head>
+<body>
+<h1>⚡ Tính nhẩm nhanh</h1>
+<p class="sub">Chọn đáp án đúng trong thời gian ngắn nhất</p>
+<div class="card" id="card"></div>
+<script>
+let score=0,total=0,streak=0,best=0,timer=null,timeLeft=0;
+const MAX=10;
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function gen(){
+const ops=["+","-","×"];
+const op=ops[rand(0,2)];
+let a,b,ans;
+if(op==="+"){a=rand(1,50);b=rand(1,50);ans=a+b;}
+else if(op==="-"){a=rand(10,99);b=rand(1,a);ans=a-b;}
+else{a=rand(2,12);b=rand(2,12);ans=a*b;}
+return{text:`${a} ${op} ${b}`,ans};
+}
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=rand(0,i);[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+function genOpts(ans){
+const opts=new Set([ans]);
+while(opts.size<4){const off=rand(-10,10);if(off!==0)opts.add(ans+off);}
+return shuffle([...opts]);
+}
+function render(){
+const c=document.getElementById("card");
+if(total>=MAX){clearInterval(timer);
+c.innerHTML=`<p style="font-size:2.2rem">🏆</p><p class="score">Kết quả: ${score}/${MAX}</p><p class="streak">Chuỗi dài nhất: ${best} câu liên tiếp</p><button class="btn" onclick="restart()">Chơi lại</button>`;return;}
+const q=gen();total++;
+const opts=genOpts(q.ans);
+timeLeft=10;
+clearInterval(timer);
+timer=setInterval(()=>{timeLeft--;document.getElementById("tm").textContent=`⏱ ${timeLeft}s`;if(timeLeft<=0){clearInterval(timer);streak=0;render();}},1000);
+c.innerHTML=`<p style="color:#999;font-size:.85rem">Câu ${total}/${MAX}</p><p id="tm" class="timer">⏱ ${timeLeft}s</p><p class="problem">${q.text} = ?</p><div class="options">${opts.map(o=>`<div class="opt" onclick="check(this,${o},${q.ans})">${o}</div>`).join("")}</div><p class="score">Điểm: ${score} | Chuỗi: ${streak}</p>`;
+}
+function check(el,chosen,correct){
+clearInterval(timer);
+document.querySelectorAll(".opt").forEach(o=>o.style.pointerEvents="none");
+if(chosen===correct){el.classList.add("correct");score++;streak++;if(streak>best)best=streak;}
+else{el.classList.add("wrong");streak=0;document.querySelectorAll(".opt").forEach(o=>{if(parseInt(o.textContent)===correct)o.classList.add("correct");});}
+setTimeout(render,700);
+}
+function restart(){score=0;total=0;streak=0;best=0;render();}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tìm quy luật</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:linear-gradient(135deg,#fff7ed,#fff9f2);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;color:#1e293b}
+h1{color:#ea580c;font-size:1.5rem;margin-bottom:4px;text-align:center}
+.sub{color:#64748b;font-size:.9rem;margin-bottom:16px;text-align:center;max-width:460px}
+.card{background:#fff;border-radius:20px;padding:24px;box-shadow:0 10px 30px rgba(234,88,12,.12);width:100%;max-width:460px;text-align:center}
+.seq{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;font-size:2.4rem;margin:10px 0 6px;min-height:56px}
+.qmark{width:54px;height:54px;border:3px dashed #fdba74;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fb923c;font-weight:800}
+.lbl{color:#9a3412;font-weight:700;margin:14px 0}
+.opts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.opt{font-size:2rem;width:64px;height:64px;border:2px solid #fed7aa;border-radius:16px;background:#fff7ed;cursor:pointer;transition:.15s}
+.opt:hover{transform:translateY(-3px);border-color:#fb923c}
+.opt.ok{background:#dcfce7;border-color:#22c55e}.opt.no{background:#fee2e2;border-color:#ef4444}
+.score{margin-top:14px;color:#ea580c;font-weight:600}
+.btn{margin-top:14px;background:linear-gradient(120deg,#fb923c,#ea580c);color:#fff;border:none;padding:12px 28px;border-radius:14px;font-weight:700;cursor:pointer}
+.fb{margin-top:10px;font-weight:600;min-height:22px}
+</style></head><body>
+<h1>🧩 Tìm quy luật</h1>
+<p class="sub">AI rất giỏi nhận ra quy luật. Em hãy đoán hình tiếp theo trong dãy nhé!</p>
+<div class="card" id="card"></div>
+<script>
+const P=[
+{seq:["🔴","🔵","🔴","🔵","🔴"],a:"🔵",opt:["🔵","🔴","🟢"]},
+{seq:["🐶","🐱","🐶","🐱"],a:"🐶",opt:["🐱","🐶","🐭"]},
+{seq:["⭐","⭐","🌙","⭐","⭐"],a:"🌙",opt:["⭐","🌙","☀️"]},
+{seq:["1️⃣","2️⃣","3️⃣","4️⃣"],a:"5️⃣",opt:["6️⃣","5️⃣","4️⃣"]},
+{seq:["🟥","🟨","🟩","🟥","🟨"],a:"🟩",opt:["🟥","🟩","🟦"]},
+{seq:["🌱","🌿","🌳","🌱","🌿"],a:"🌳",opt:["🌱","🌳","🍂"]},
+{seq:["😀","😀","😢","😀","😀"],a:"😢",opt:["😀","😢","😡"]},
+{seq:["🔺","🔻","🔺","🔻"],a:"🔺",opt:["🔻","🔺","⬛"]},
+];
+let i=0,s=0,done=false;
+function shuffle(a){for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a}
+shuffle(P);
+function render(){
+const c=document.getElementById('card');
+if(i>=P.length){c.innerHTML=`<div class="seq">🎉</div><div class="lbl">Hoàn thành!</div><p class="score">Đúng ${s}/${P.length}</p><button class="btn" onclick="restart()">Chơi lại</button>`;return}
+done=false;const p=P[i];const opts=shuffle([...p.opt]);
+c.innerHTML=`<p style="color:#94a3b8;font-size:.85rem">Câu ${i+1}/${P.length}</p>
+<div class="seq">${p.seq.join("")}<div class="qmark">?</div></div>
+<div class="lbl">Hình tiếp theo là gì?</div>
+<div class="opts">${opts.map(o=>`<button class="opt" onclick="pick('${o}',this)">${o}</button>`).join("")}</div>
+<p class="fb" id="fb"></p><p class="score">Điểm: ${s}</p>`;
+}
+function pick(o,el){
+if(done)return;done=true;
+const ok=o===P[i].a;el.classList.add(ok?'ok':'no');if(ok)s++;
+if(!ok)document.querySelectorAll('.opt').forEach(b=>{if(b.textContent===P[i].a)b.classList.add('ok')});
+document.getElementById('fb').innerHTML=ok?'<span style="color:#16a34a">🎯 Giỏi quá!</span>':'<span style="color:#dc2626">💡 Quy luật là lặp lại!</span>';
+setTimeout(()=>{i++;render()},1100);
+}
+function restart(){i=0;s=0;shuffle(P);render()}
+render();
+</script></body></html>
