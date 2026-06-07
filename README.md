@@ -183,3 +183,33 @@ src/
 - **Nội dung chương trình, giá trị, hoạt động:** `src/lib/content.ts`
 - **Màu sắc thương hiệu:** `tailwind.config.ts`
 - **Hình ảnh:** thay các vùng có ghi chú `* Thay ảnh ...` bằng ảnh thật của Cô Duyên (đặt trong `public/` và dùng `next/image`).
+
+## Triển khai Production (Neon PostgreSQL)
+
+Schema đã được đồng bộ lên Neon. Khi deploy (Vercel, VPS, Render...), cần đặt các biến môi trường trên hosting (KHÔNG commit vào git):
+
+```
+DATABASE_URL="postgresql://...neon.tech/neondb?sslmode=require"
+AUTH_SECRET="<chuỗi ngẫu nhiên dài, bí mật>"
+ADMIN_EMAIL="huynhduyen18813@gmail.com"
+ADMIN_PASSWORD="<mật khẩu mạnh>"
+NOTIFY_WEBHOOK_URL=""   # tùy chọn
+```
+
+Các lệnh đồng bộ schema & nạp dữ liệu lên Neon (chạy 1 lần):
+
+```bash
+# Đồng bộ schema
+DATABASE_URL="<neon-url>" npx prisma db push
+# Nạp dữ liệu khởi tạo (admin, bài viết, lịch, trò chơi)
+DATABASE_URL="<neon-url>" node prisma/seed.mjs
+DATABASE_URL="<neon-url>" node prisma/seed-games.mjs
+```
+
+> **Lưu ý quan trọng về tệp tải lên (storage):**
+> Ứng dụng lưu ảnh/clip/file tải lên trong thư mục `storage/` trên ổ đĩa.
+> - Trên **VPS / máy chủ Node** (có ổ đĩa bền): hoạt động tốt.
+> - Trên **Vercel/serverless** (hệ thống tệp chỉ đọc, tạm thời): các file tải lên
+>   lúc chạy sẽ KHÔNG được lưu lại. Nếu deploy lên Vercel, cần chuyển phần lưu trữ
+>   sang dịch vụ object storage (Vercel Blob, AWS S3...). Các trò chơi mẫu trong
+>   `storage/games/` đã được commit nên vẫn dùng được.
